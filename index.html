@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hypothesis Testing Tool — G11 Global Economics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="header-label">Global Economics · Grade 11 · Term 3</div>
+      <h1>Hypothesis<br><em>Testing</em> Tool</h1>
+      <p class="header-sub">C8 · C9 · C10 — Interactive statistical inference engine</p>
+    </div>
+    <div class="header-deco"></div>
+  </header>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="c8">
+      <span class="tab-code">C8</span>
+      <span class="tab-label">Manual Mode</span>
+    </button>
+    <button class="tab-btn" data-tab="c9">
+      <span class="tab-code">C9</span>
+      <span class="tab-label">CSV Mode</span>
+    </button>
+    <button class="tab-btn" data-tab="c10">
+      <span class="tab-code">C10</span>
+      <span class="tab-label">Report</span>
+    </button>
+  </nav>
+
+  <main>
+
+    <!-- ===== C8: MANUAL MODE ===== -->
+    <section id="tab-c8" class="tab-panel active">
+      <div class="panel-grid">
+
+        <div class="controls-col">
+          <div class="card">
+            <h2 class="card-title">Test Configuration</h2>
+
+            <div class="field-group">
+              <label class="field-label">Test Mode</label>
+              <div class="btn-group" id="modeGroup">
+                <button class="mode-btn active" data-mode="mean">Mean (μ)</button>
+                <button class="mode-btn" data-mode="proportion">Proportion (p)</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Test Direction</label>
+              <div class="btn-group" id="tailGroup">
+                <button class="tail-btn" data-tail="left">Left-tailed</button>
+                <button class="tail-btn active" data-tail="two">Two-tailed</button>
+                <button class="tail-btn" data-tail="right">Right-tailed</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Significance Level α</label>
+              <div class="slider-row">
+                <input type="range" id="alphaSlider" min="0.01" max="0.10" step="0.01" value="0.05"/>
+                <input type="number" id="alphaBox" min="0.01" max="0.10" step="0.01" value="0.05" class="num-box"/>
+              </div>
+            </div>
+
+            <div id="meanFields">
+              <div class="field-group">
+                <label class="field-label">Benchmark Mean (μ₀)</label>
+                <div class="slider-row">
+                  <input type="range" id="mu0Slider" min="0" max="200" step="1" value="100"/>
+                  <input type="number" id="mu0Box" value="100" class="num-box"/>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Sample Mean (x̄)</label>
+                <div class="slider-row">
+                  <input type="range" id="xbarSlider" min="0" max="200" step="0.1" value="105"/>
+                  <input type="number" id="xbarBox" value="105" class="num-box"/>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Standard Deviation (σ)</label>
+                <div class="slider-row">
+                  <input type="range" id="sigmaSlider" min="1" max="100" step="0.5" value="20"/>
+                  <input type="number" id="sigmaBox" value="20" class="num-box"/>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Sample Size (n)</label>
+                <div class="slider-row">
+                  <input type="range" id="nMeanSlider" min="5" max="500" step="1" value="50"/>
+                  <input type="number" id="nMeanBox" value="50" class="num-box"/>
+                </div>
+              </div>
+            </div>
+
+            <div id="propFields" style="display:none;">
+              <div class="field-group">
+                <label class="field-label">Benchmark Proportion (p₀)</label>
+                <div class="slider-row">
+                  <input type="range" id="p0Slider" min="0.01" max="0.99" step="0.01" value="0.50"/>
+                  <input type="number" id="p0Box" min="0.01" max="0.99" step="0.01" value="0.50" class="num-box"/>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Sample Proportion (p̂)</label>
+                <div class="slider-row">
+                  <input type="range" id="phatSlider" min="0.01" max="0.99" step="0.01" value="0.55"/>
+                  <input type="number" id="phatBox" min="0.01" max="0.99" step="0.01" value="0.55" class="num-box"/>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Sample Size (n)</label>
+                <div class="slider-row">
+                  <input type="range" id="nPropSlider" min="5" max="1000" step="1" value="100"/>
+                  <input type="number" id="nPropBox" value="100" class="num-box"/>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="output-col">
+          <div class="card graph-card">
+            <h2 class="card-title">Normal Curve · P-value Visualization</h2>
+            <canvas id="normalCanvas" width="560" height="280"></canvas>
+            <div class="canvas-legend" id="canvasLegend"></div>
+          </div>
+
+          <div class="card results-card">
+            <h2 class="card-title">Statistical Results</h2>
+            <div class="results-grid" id="resultsGrid">
+              <div class="result-item">
+                <span class="result-label">Test Statistic (z)</span>
+                <span class="result-value" id="zVal">—</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">P-value</span>
+                <span class="result-value" id="pVal">—</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Critical Value</span>
+                <span class="result-value" id="critVal">—</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Alpha (α)</span>
+                <span class="result-value" id="alphaVal">—</span>
+              </div>
+            </div>
+            <div class="decision-box" id="decisionBox">
+              <div class="decision-title" id="decisionTitle">—</div>
+              <div class="decision-text" id="decisionText">—</div>
+            </div>
+            <div class="errors-box">
+              <h3 class="errors-title">Type of Errors in This Context</h3>
+              <div class="errors-grid">
+                <div class="error-item type1">
+                  <span class="error-badge">Type I (α)</span>
+                  <span class="error-desc">Rejecting H₀ when it is actually true.</span>
+                </div>
+                <div class="error-item type2">
+                  <span class="error-badge">Type II (β)</span>
+                  <span class="error-desc">Failing to reject H₀ when it is actually false.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== C9: CSV MODE ===== -->
+    <section id="tab-c9" class="tab-panel">
+      <div class="panel-grid">
+
+        <div class="controls-col">
+          <div class="card">
+            <h2 class="card-title">Upload CSV Data</h2>
+            <p class="card-hint">Upload a two-group CSV file. The webpage will detect columns and run the hypothesis test automatically.</p>
+
+            <div class="upload-zone" id="uploadZone">
+              <div class="upload-icon">↑</div>
+              <div class="upload-text">Drop CSV file here or click to browse</div>
+              <input type="file" id="csvFile" accept=".csv" style="display:none"/>
+            </div>
+
+            <div id="csvControls" style="display:none;">
+              <div class="field-group">
+                <label class="field-label">Data Type</label>
+                <div class="btn-group" id="csvModeGroup">
+                  <button class="mode-btn active" data-csvmode="mean">Mean</button>
+                  <button class="mode-btn" data-csvmode="proportion">Proportion</button>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Group Column</label>
+                <select id="groupColSelect" class="select-box"></select>
+              </div>
+              <div class="field-group" id="valueColGroup">
+                <label class="field-label">Value Column</label>
+                <select id="valueColSelect" class="select-box"></select>
+              </div>
+              <div class="field-group" id="successColGroup" style="display:none;">
+                <label class="field-label">Success Column (0/1)</label>
+                <select id="successColSelect" class="select-box"></select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Benchmark Group</label>
+                <select id="benchGroupSelect" class="select-box"></select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Test Group</label>
+                <select id="testGroupSelect" class="select-box"></select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Test Direction</label>
+                <div class="btn-group" id="csvTailGroup">
+                  <button class="tail-btn" data-tail="left">Left</button>
+                  <button class="tail-btn active" data-tail="two">Two</button>
+                  <button class="tail-btn" data-tail="right">Right</button>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Significance Level α</label>
+                <div class="slider-row">
+                  <input type="range" id="csvAlphaSlider" min="0.01" max="0.10" step="0.01" value="0.05"/>
+                  <input type="number" id="csvAlphaBox" min="0.01" max="0.10" step="0.01" value="0.05" class="num-box"/>
+                </div>
+              </div>
+              <button class="run-btn" id="runCsvBtn">Run Hypothesis Test</button>
+            </div>
+
+            <div class="sample-files">
+              <p class="field-label">Example CSV files:</p>
+              <a href="data/G11_T3_L4_C8C9_example_mean_data.csv" download class="file-link">↓ Mean data example</a>
+              <a href="data/G11_T3_L4_C8C9_example_proportion_data.csv" download class="file-link">↓ Proportion data example</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="output-col">
+          <div class="card graph-card" id="csvGraphCard" style="display:none;">
+            <h2 class="card-title">Normal Curve · CSV Test</h2>
+            <canvas id="csvCanvas" width="560" height="280"></canvas>
+          </div>
+          <div class="card results-card" id="csvResultsCard" style="display:none;">
+            <h2 class="card-title">Summary Statistics</h2>
+            <div class="summary-grid" id="summaryGrid"></div>
+            <h2 class="card-title" style="margin-top:1.5rem;">Test Results</h2>
+            <div class="results-grid" id="csvResultsGrid"></div>
+            <div class="decision-box" id="csvDecisionBox">
+              <div class="decision-title" id="csvDecisionTitle">—</div>
+              <div class="decision-text" id="csvDecisionText">—</div>
+            </div>
+          </div>
+          <div class="card" id="csvPreviewCard" style="display:none;">
+            <h2 class="card-title">Data Preview</h2>
+            <div class="table-wrap" id="csvPreview"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== C10: REPORT ===== -->
+    <section id="tab-c10" class="tab-panel">
+      <div class="report-wrap">
+        <article class="report" id="reportContent">
+
+          <div class="report-top-bar">
+            <div class="report-meta">APA Format · G11 Global Economics · Term 3 2025–2026</div>
+            <button class="pdf-btn" onclick="printReport()">⬇ Download PDF</button>
+          </div>
+
+          <h1 class="report-title">Do Urban Students Outperform Rural Students in Standardized Mathematics Tests? A Hypothesis Testing Approach</h1>
+
+          <section class="report-section">
+            <h2>Introduction</h2>
+            <p>Educational inequality between urban and rural areas is a persistent concern in Colombia. According to the Fundación Empresarios por la Educación (2024), students in rural areas scored 26.1 points less than urban students on the Saber 11 national exam in 2024, a gap that has remained consistent across recent years. At the international level, the OECD (2023) documents that access to education and learning outcomes are systematically worse in rural and disadvantaged areas across member and partner countries. This report applies hypothesis testing to evaluate whether the observed urban–rural score difference in Colombia is statistically significant or whether it could be explained by sampling variability.</p>
+            <p>Understanding whether this gap is statistically significant is crucial for evidence-based educational policy decisions (Suárez &amp; García, 2024). The interactive hypothesis testing tool developed in C8 and C9 of this project was used to perform all calculations.</p>
+          </section>
+
+          <section class="report-section">
+            <h2>Research Question</h2>
+            <p>Is the mean mathematics score of urban students significantly higher than the mean mathematics score of rural students, at a significance level of α = 0.05?</p>
+          </section>
+
+          <section class="report-section">
+            <h2>Methodology</h2>
+            <p>A one-sample z-test for means was conducted using the benchmark mean established from rural student national averages. The test direction is right-tailed, since the hypothesis specifically evaluates whether urban scores are <em>higher</em> than the rural benchmark.</p>
+            <div class="hypo-box">
+              <div class="hypo-item"><strong>H₀:</strong> μ_urban = μ_rural &nbsp;&nbsp; (μ₀ = 45.0 points)</div>
+              <div class="hypo-item"><strong>H₁:</strong> μ_urban &gt; μ_rural &nbsp;&nbsp; (right-tailed)</div>
+              <div class="hypo-item"><strong>α = 0.05</strong></div>
+            </div>
+            <p>Data were drawn from the example dataset provided (G11_T3_L4_C8C9_example_mean_data.csv). The urban group served as the test group and the rural group as the benchmark. The tool automatically computed summary statistics and the z-statistic.</p>
+          </section>
+
+          <section class="report-section">
+            <h2>Results</h2>
+            <p>The following results were obtained using the C8/C9 interactive webpage:</p>
+            <table class="report-table">
+              <thead><tr><th>Statistic</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Benchmark mean (rural, μ₀)</td><td>45.0</td></tr>
+                <tr><td>Sample mean (urban, x̄)</td><td>52.3</td></tr>
+                <tr><td>Standard deviation (σ)</td><td>12.8</td></tr>
+                <tr><td>Sample size (n)</td><td>60</td></tr>
+                <tr><td>Test statistic (z)</td><td>4.42</td></tr>
+                <tr><td>P-value</td><td>&lt; 0.0001</td></tr>
+                <tr><td>Critical value (z*)</td><td>1.645</td></tr>
+                <tr><td>Significance level (α)</td><td>0.05</td></tr>
+                <tr><td>Decision</td><td><strong>Reject H₀</strong></td></tr>
+              </tbody>
+            </table>
+            <p>Since the p-value (&lt; 0.0001) is less than α (0.05) and the test statistic z = 4.42 exceeds the critical value z* = 1.645, we reject the null hypothesis.</p>
+          </section>
+
+          <section class="report-section">
+            <h2>Discussion</h2>
+            <p>The statistical evidence strongly supports the alternative hypothesis: urban students score significantly higher than rural students on standardized mathematics tests in this sample. This finding is consistent with official Colombian data. The Fundación Empresarios por la Educación (2024) reports that the urban–rural gap in the Saber 11 exam increased by one point between 2023 and 2024, reaching 26.1 points in the global score.</p>
+            <p>At the international level, the OECD (2023) documents that educational outcomes are systematically shaped by geographic location, with rural students facing disadvantages in access to qualified teachers, infrastructure, and learning materials. In the Colombian context, Suárez and García (2024) found that socioeconomic factors including internet access, parental education, and geographic location are strongly correlated with mathematics performance in the Saber 11, reinforcing that the urban–rural gap has structural roots that require targeted policy responses.</p>
+
+            <h3>Statistical Errors in This Context</h3>
+            <div class="errors-grid" style="margin-top:0.75rem;">
+              <div class="error-item type1">
+                <span class="error-badge">Type I Error (α = 0.05)</span>
+                <span class="error-desc">Concluding that urban students score higher when in reality there is no true difference. This could lead to misplaced policy interventions that ignore other sources of inequality.</span>
+              </div>
+              <div class="error-item type2">
+                <span class="error-badge">Type II Error (β)</span>
+                <span class="error-desc">Failing to detect a real difference between urban and rural students. This would cause policymakers to overlook a genuine problem and delay necessary educational reforms.</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="report-section">
+            <h2>Conclusion</h2>
+            <p>At a significance level of α = 0.05, the hypothesis test provides strong statistical evidence that urban students score significantly higher than rural students on standardized mathematics tests (z = 4.42, p &lt; 0.0001). The null hypothesis is rejected. These findings are consistent with official Colombian data showing a persistent urban–rural gap of over 26 points on the Saber 11 (Fundación Empresarios por la Educación, 2024), and underscore the need for equity-focused educational policies that address structural disparities between urban and rural schools (OECD, 2023; Suárez &amp; García, 2024).</p>
+          </section>
+
+          <section class="report-section references">
+            <h2>References</h2>
+            <p>Fundación Empresarios por la Educación. (2024). <em>Análisis de resultados examen Saber 11° 2024</em>. FExE. <a href="https://www.fundacionexe.org.co/wp-content/uploads/2025/04/20240311_PPT_Análisis-Saber11_2024-4.pdf" target="_blank">https://www.fundacionexe.org.co/wp-content/uploads/2025/04/20240311_PPT_Análisis-Saber11_2024-4.pdf</a></p>
+            <p>OECD. (2023). <em>Education at a glance 2023: OECD indicators</em>. OECD Publishing. <a href="https://doi.org/10.1787/e13bef63-en" target="_blank">https://doi.org/10.1787/e13bef63-en</a></p>
+            <p>Suárez, J. A., &amp; García, H. A. (2024). Características del estudiantado nariñense en la prueba Saber 11 según el desempeño en matemáticas. <em>CPU-e, Revista de Investigación Educativa</em>, (39). <a href="https://doi.org/10.25009/cpue.v0i39.2880" target="_blank">https://doi.org/10.25009/cpue.v0i39.2880</a></p>
+          </section>
+
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>G11 · Global Economics · Term 3 · 2025–2026 · Teacher: Nicolás López Cuéllar</p>
+    <p>C8 · C9 · C10 — Hypothesis Testing Web Tool · María Cangrejo</p>
+  </footer>
+
+  <script src="js/stats.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/c8.js"></script>
+  <script src="js/c9.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function printReport() {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-c10').classList.add('active');
+      setTimeout(() => { window.print(); }, 150);
+    }
+  </script>
+</body>
+</html>
